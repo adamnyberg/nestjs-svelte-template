@@ -12,6 +12,8 @@ import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  app.enableCors();
+
   app.enableVersioning({
     defaultVersion: '1',
     type: VersioningType.URI,
