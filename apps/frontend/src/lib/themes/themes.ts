@@ -54,7 +54,7 @@ export const themes: { [name in ThemeName]: Theme } = {
   },
   dark: {
     colors: {
-      background: '#ffffff',
+      background: '#000000',
       primary: fiord,
       secondary: palette.base[200],
     },

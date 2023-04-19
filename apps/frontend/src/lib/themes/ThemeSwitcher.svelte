@@ -18,15 +18,15 @@
   };
 
   onMount(() => {
-    console.log('setting root css vars', get(themeStore).name, 'on mount');
     setRootCssVars(get(themeStore).name);
   });
 
   themeStore.subscribe((theme) => {
-    console.log('setting root css vars', theme, 'on themeStore update');
     setRootCssVars(theme.name);
   });
 </script>
 
-<button on:click={() => setTheme('dark')}> Dark mode </button>
-<button on:click={() => setTheme('light')}> Light mode </button>
+<div class="flex flex-row gap-2">
+  <button on:click={() => setTheme('dark')}> Dark mode </button>
+  <button on:click={() => setTheme('light')}> Light mode </button>
+</div>

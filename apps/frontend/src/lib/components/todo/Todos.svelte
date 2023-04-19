@@ -2,40 +2,34 @@
   import CreateTodo from './CreateTodo.svelte';
   import TodoItem from './TodoItem.svelte';
 
-  import { getTodos } from './api';
+  import { getTodos, TODOS_KEY, type ClientTodo } from './api';
   import { createQuery } from '@tanstack/svelte-query';
-  import type { TodoDto } from '$backend/prisma/generated/dtos';
 
-  const todos = createQuery<TodoDto[], Error>({
-    queryKey: ['todos'],
+  const todos = createQuery<ClientTodo[], Error>({
+    queryKey: [TODOS_KEY],
     queryFn: () => getTodos(),
   });
-
-  // let todos: string[] = ['Learn Svelte', 'Learn Vite', 'Learn SvelteKit'];
-
-  function useQuery(arg0: string, getTodos: () => Promise<TodoDto[]>) {
-    throw new Error('Function not implemented.');
-  }
 </script>
 
 <h2>Todos</h2>
 <CreateTodo />
+{#if $todos.data && $todos.data.length > 0}
+  <ul class="flex flex-col gap-2">
+    {#each $todos.data.sort((a, b) => {
+      if (!a.createdAt || !b.createdAt) return 1;
+      return a.createdAt > b.createdAt ? 1 : -1;
+    }) as todo}
+      <li><TodoItem {todo} /></li>
+    {/each}
+  </ul>
+{:else}
+  <span>No todos</span>
+{/if}
 {#if $todos.status === 'loading'}
   <span>Loading...</span>
 {:else if $todos.status === 'error'}
   <span>Error: {$todos.error.message}</span>
-{:else}
-  <ul>
-    {#each $todos.data as todo}
-      <li><TodoItem {todo} /></li>
-    {/each}
-  </ul>
-  {#if $todos.isFetching}
-    <div style="color:darkgreen; font-weight:700">Background Updating...</div>
-  {/if}
 {/if}
-<!-- <ul>
-  {#each todos as todo}
-    <li><TodoItem {todo} /></li>
-  {/each}
-</ul> -->
+{#if $todos.isFetching}
+  <div style="color:darkgreen; font-weight:700">Background Updating...</div>
+{/if}

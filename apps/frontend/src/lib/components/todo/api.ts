@@ -1,14 +1,19 @@
 import type { CreateTodoDto } from '$backend/src/todo/dto/create_todo.dto';
 import type { TodoDto } from '$backend/prisma/generated/dtos';
-// import type { UpdateTodoDto } from '@backend/src/todo/dto/update_todo.dto';
+import type { UpdateTodoDto } from '$backend/src/todo/dto/update_todo.dto';
 import axios from 'axios';
+import getEnvVariables from '../../utils/env';
 
-const BASE_URL = "https://nestjs-svelte-template-production.up.railway.app/v1"
+const API_VERSION = 'v1';
+const BASE_URL = `${getEnvVariables().API_URL}/${API_VERSION}`;
+const TODO_RESOURCE_PATH = `${BASE_URL}/todos`;
+export const TODOS_KEY = 'todos';
+
+export type ClientTodo = Partial<TodoDto> & Pick<TodoDto, 'text' | 'completed'>;
 
 export async function getTodos(): Promise<TodoDto[]> {
   try {
-    const response = await axios.get(`${BASE_URL}/todos`);
-    console.log(response);
+    const response = await axios.get(TODO_RESOURCE_PATH);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -18,8 +23,7 @@ export async function getTodos(): Promise<TodoDto[]> {
 
 export async function postTodo(todo: CreateTodoDto): Promise<TodoDto> {
   try {
-    const response = await axios.get('/user?ID=12345');
-    console.log(response);
+    const response = await axios.post(TODO_RESOURCE_PATH, todo);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -27,19 +31,34 @@ export async function postTodo(todo: CreateTodoDto): Promise<TodoDto> {
   }
 }
 
-export async function deleteTodo(id: string): Promise<void> {
-  await fetch(`/api/todos/${id}`, {
-    method: 'DELETE',
-  });
+export async function deleteTodo(todo: ClientTodo): Promise<void> {
+  if (!todo.id) {
+    throw new Error('todo.id is required');
+  }
+  
+  try {
+    const response = await axios.delete(`${TODO_RESOURCE_PATH}/${todo.id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 }
 
-export async function putTodo(todo: TodoDto): Promise<TodoDto> {
-  const response = await fetch(`/api/todos/${todo.id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(todo),
-  });
-  return response.json();
+export async function putTodo(todo: ClientTodo): Promise<TodoDto> {
+  if (!todo.id) {
+    throw new Error('todo.id is required');
+  }
+  
+  const body: UpdateTodoDto = {
+    text: todo.text,
+    completed: todo.completed,
+  }
+  try {
+    const response = await axios.put(`${TODO_RESOURCE_PATH}/${todo.id}`, body);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 }

@@ -19,6 +19,8 @@
 </svelte:head>
 
 <QueryClientProvider client={queryClient}>
-  <Header />
-  <slot />
+  <div class="m-auto w-full max-w-[520px]">
+    <Header />
+    <slot />
+  </div>
 </QueryClientProvider>
